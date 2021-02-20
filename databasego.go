@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
-import "encoding/json"
-import "io/ioutil"
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+)
 
 type Action struct {
 	Action  string `json:"action"`
@@ -112,35 +116,42 @@ func (action DeleteTeacher) Process() {
 }
 
 func main() {
-	text, err := ioutil.ReadFile("data.json")
+	f, err := os.Open("data.json")
+	defer f.Close()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	reader := bufio.NewReader(f)
+	for {
+		line, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		var act Action
+		err = json.Unmarshal(line, &act)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	var act Action
-	err = json.Unmarshal(text, &act)
-	if err != nil {
-		fmt.Println(err)
-		return
+		var obj GeneralObject
+		switch act.ObjName {
+		case "Teacher":
+			obj = &Teacher{}
+		}
+		var toDo DefinedAction
+		switch act.Action {
+		case "create":
+			toDo = obj.GetCreateAction()
+		case "update":
+			toDo = obj.GetUpdateAction()
+		case "read":
+			toDo = obj.GetReadAction()
+		}
+
+		toDo.GetFromJSON(line)
+
+		toDo.Process()
 	}
-
-	var obj GeneralObject
-	switch act.ObjName {
-	case "Teacher":
-		obj = &Teacher{}
-	}
-	var toDo DefinedAction
-	switch act.Action {
-	case "create":
-		toDo = obj.GetCreateAction()
-	case "update":
-		toDo = obj.GetUpdateAction()
-	case "read":
-		toDo = obj.GetReadAction()
-	}
-
-	toDo.GetFromJSON(text)
-
-	toDo.Process()
 }
