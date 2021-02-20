@@ -57,7 +57,7 @@ type CreateTeacher struct {
 func (action *CreateTeacher) GetFromJSON(rawData []byte) {
 	err := json.Unmarshal(rawData, action)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("60", err)
 		return
 	}
 }
@@ -73,12 +73,12 @@ type UpdateTeacher struct {
 func (action *UpdateTeacher) GetFromJSON(rawData []byte) {
 	err := json.Unmarshal(rawData, action)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("76", err)
 		return
 	}
 }
 func (action UpdateTeacher) Process() {
-
+	fmt.Println("Teacher Updated")
 }
 
 type ReadTeacher struct {
@@ -90,7 +90,7 @@ type ReadTeacher struct {
 func (action *ReadTeacher) GetFromJSON(rawData []byte) {
 	err := json.Unmarshal(rawData, action)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("93", err)
 		return
 	}
 }
@@ -107,7 +107,7 @@ type DeleteTeacher struct {
 func (action *DeleteTeacher) GetFromJSON(rawData []byte) {
 	err := json.Unmarshal(rawData, action)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("110", err)
 		return
 	}
 }
@@ -119,7 +119,7 @@ func main() {
 	f, err := os.Open("data.json")
 	defer f.Close()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("122", err)
 		return
 	}
 	reader := bufio.NewReader(f)
@@ -131,7 +131,7 @@ func main() {
 		var act Action
 		err = json.Unmarshal(line, &act)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("134", err)
 			return
 		}
 
@@ -148,10 +148,10 @@ func main() {
 			toDo = obj.GetUpdateAction()
 		case "read":
 			toDo = obj.GetReadAction()
+		case "delete":
+			toDo = obj.GetDeleteAction()
 		}
-
 		toDo.GetFromJSON(line)
-
 		toDo.Process()
 	}
 }
